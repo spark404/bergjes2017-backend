@@ -4,8 +4,9 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import net.strocamp.bergjes.domain.DeviceInfo;
-import org.joda.time.LocalDateTime;
+import net.strocamp.bergjes.domain.internal.DeviceDetails;
+import net.strocamp.bergjes.domain.question.Question;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,10 +23,14 @@ public class Database {
                 .build();
     }
 
-   public void storeTest(DeviceInfo deviceInfo) {
+   public void updateStatus(DeviceDetails deviceDetails) {
+
        Map<String, AttributeValue> dbItem = new HashMap<String, AttributeValue>();
-       dbItem.put("deviceId", new AttributeValue().withS(deviceInfo.getDeviceIdentifier()));
-       dbItem.put("timestamp", new AttributeValue().withS(LocalDateTime.now().toString()));
+       dbItem.put("deviceId", new AttributeValue().withS(deviceDetails.getDeviceIdentifier()));
+       dbItem.put("installationId", new AttributeValue().withS(deviceDetails.getInstallationId()));
+       dbItem.put("timestamp", new AttributeValue().withS(deviceDetails.getLastSeen().toString()));
+
        dynamoDB.putItem("devices", dbItem);
    }
+
 }
