@@ -7,6 +7,14 @@ public class Resource {
     private ResourceType resourceType;
     private Integer amount;
 
+    public Resource() {
+    }
+
+    public Resource(ResourceType resourceType, Integer amount) {
+        this.resourceType = resourceType;
+        this.amount = amount;
+    }
+
     public ResourceType getResourceType() {
         return resourceType;
     }

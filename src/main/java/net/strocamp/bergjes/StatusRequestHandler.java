@@ -4,45 +4,60 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import net.strocamp.bergjes.db.Database;
+import net.strocamp.bergjes.db.TeamStatus;
 import net.strocamp.bergjes.domain.DeviceInfo;
 import net.strocamp.bergjes.domain.Status;
 import net.strocamp.bergjes.domain.internal.DeviceDetails;
 import net.strocamp.bergjes.domain.question.Question;
 import net.strocamp.bergjes.domain.resource.Resource;
+import net.strocamp.bergjes.domain.resource.ResourceType;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collections;
 
 /**
  * Created by hugo on 08/04/2017.
  */
-public class StatusRequestHandler implements RequestHandler<DeviceInfo, Status> {
-
-    private Database database;
-
-    public StatusRequestHandler() {
-        this.database = new Database();
-    }
+public class StatusRequestHandler extends AbstractRequestHandler implements RequestHandler<DeviceInfo, Status> {
 
     public Status handleRequest(DeviceInfo deviceInfo, Context context) {
-        LambdaLogger logger = context.getLogger();
-
+        // Take care of the device update, this will also create the team if it doesn't exist
         DeviceDetails deviceDetails = new DeviceDetails();
         deviceDetails.setDeviceIdentifier(deviceInfo.getDeviceIdentifier());
         deviceDetails.setInstallationId(context.getClientContext().getClient().getInstallationId());
         deviceDetails.setLastSeen(LocalDateTime.now());
+        database.updateStatus(deviceDetails);
+
+        // The team should exist, no initialize and continue
+        init(context);
 
         logger.log(String.format("Device details : %s, %s, %s",
                 deviceDetails.getDeviceIdentifier(), deviceDetails.getInstallationId(), deviceDetails.getLastSeen()));
 
-        database.updateStatus(deviceDetails);
-
+        String roundCode = settings.get("currentRound");
         Status status = new Status();
-        status.setActiveRound("ronde1");
+
+        status.setActiveRound(roundCode);
+
         status.setRoundExpiry(LocalDateTime.now().plus(60, ChronoUnit.MINUTES));
-        status.setActiveQuestions(Collections.<Question>emptyList());
-        status.setResourceList(Collections.<Resource>emptyList());
+
+        ArrayList<Question> activeQuestions = new ArrayList<>();
+        teamStatus.getQuestions()
+                    .forEach((question, answerStatus) -> {
+                        logger.log(String.format("Adding question %s for team %s", question, teamStatus.getTeamId()));
+                        activeQuestions.add(database.getQuestionbyKey(question));
+                    });
+        status.setActiveQuestions(activeQuestions);
+
+        ArrayList<Resource> resourceList = new ArrayList<>();
+        teamStatus.getResources().forEach((resource, amount) -> {
+            ResourceType type = ResourceType.valueOf(resource);
+            logger.log(String.format("Adding %d of resource %s for team %s", amount, resource, teamStatus.getTeamId()));
+            resourceList.add(new Resource(type, amount));
+        });
+        status.setResourceList(resourceList);
 
         return status;
     }

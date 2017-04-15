@@ -8,8 +8,17 @@ import java.util.Map;
  * Created by hugo on 11/04/2017.
  */
 public class Question {
+    private String questionKey;
     private String question;
     private Map<AnswerType, String> answers;
+
+    public String getQuestionKey() {
+        return questionKey;
+    }
+
+    public void setQuestionKey(String questionKey) {
+        this.questionKey = questionKey;
+    }
 
     public String getQuestion() {
         return question;

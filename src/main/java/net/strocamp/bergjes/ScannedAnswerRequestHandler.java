@@ -8,8 +8,11 @@ import net.strocamp.bergjes.domain.answer.AnswerResponse;
 /**
  * Created by hugo on 11/04/2017.
  */
-public class ScannedAnswerRequestHandler implements RequestHandler<Answer, AnswerResponse> {
+public class ScannedAnswerRequestHandler extends AbstractRequestHandler implements RequestHandler<Answer, AnswerResponse> {
+
     public AnswerResponse handleRequest(Answer answer, Context context) {
+        init(context);
+
         return null;
     }
 }
