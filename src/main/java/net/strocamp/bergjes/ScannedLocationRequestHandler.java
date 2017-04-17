@@ -14,6 +14,8 @@ import net.strocamp.bergjes.exceptions.NoSuchLocationException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * Created by hugo on 10/04/2017.
@@ -42,30 +44,25 @@ public class ScannedLocationRequestHandler extends AbstractRequestHandler implem
                 logger.log(message);
                 throw new NoSuchLocationException(message);
             }
-            String questionCode;
-            switch (roundCode) {
-                case "round1":
-                    questionCode = dbLocation.getRoundOneQuestion();
-                    break;
-                case "round2":
-                    questionCode = dbLocation.getRoundTwoQuestion();
-                    break;
-                case "round3":
-                    questionCode = dbLocation.getRoundThreeQuestion();
-                    break;
-                default:
-                    throw new IllegalStateException("No round " + roundCode);
-            }
+            Map<String, String> currentRoundData = dbLocation.getRoundData().get(roundCode);
+            String questionCode = currentRoundData.get("questionKey");
 
-            locationResponse.setQuestion(database.getQuestionbyKey(questionCode));
-            locationResponse.setResource(getResource());
+            locationResponse.setQuestion(Question.fromDbQuestion(database.getQuestionbyKey(questionCode)));
+            locationResponse.setResource(new Resource(ResourceType.valueOf(currentRoundData.get("resourceType")), 0));
 
             if (!teamStatus.getVisitedLocationsPerRound().containsKey(roundCode)) {
                 teamStatus.getVisitedLocationsPerRound().put(roundCode, new ArrayList<>());
             }
 
             teamStatus.getVisitedLocationsPerRound().get(roundCode).add(scanData.getLocationCode());
-            teamStatus.getQuestions().put(questionCode, "OPEN");
+            HashMap<String, String> questionStatus = new HashMap<String, String>();
+            questionStatus.put("status", "OPEN");
+            questionStatus.put("resource", currentRoundData.get("resourceType"));
+            int resourceMin = Integer.parseInt(currentRoundData.get("resourceMin"));
+            int resourceMax = Integer.parseInt(currentRoundData.get("resourceMax"));
+            questionStatus.put("amount", Integer.toString(getRandomAmount(resourceMin, resourceMax)));
+
+            teamStatus.getQuestions().put(questionCode, questionStatus);
             database.updateTeamStatus(teamStatus);
         }
 
@@ -79,15 +76,10 @@ public class ScannedLocationRequestHandler extends AbstractRequestHandler implem
         return resource;
     }
 
-    private Question getQuestion() {
-        Question question = new Question();
-        question.setQuestion("Dit is een vraag waarmee we dingen aan je vragen");
-        HashMap<AnswerType, String> answers = new HashMap<>();
-        question.setAnswers(answers);
-        answers.put(AnswerType.A, "Geen Idee");
-        answers.put(AnswerType.B, "Geweldig Idee");
-        answers.put(AnswerType.C, "Wazig Idee");
-        answers.put(AnswerType.D, "Raar Idee");
-        return question;
+    private int getRandomAmount(int lower, int upper) {
+        Random r = new Random();
+        int Low = lower;
+        int High = upper + 1;
+        return r.nextInt(High-Low) + Low;
     }
 }

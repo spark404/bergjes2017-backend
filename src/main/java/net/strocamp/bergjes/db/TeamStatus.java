@@ -19,7 +19,7 @@ public class TeamStatus {
     private Map<String, List<String>> visitedLocationsPerRound;
 
     // questionKey -> status
-    private Map<String, String> questions;
+    private Map<String, Map<String,String>> questions;
 
     // resourceType -> amount
     private Map<String, Integer> resources;
@@ -43,11 +43,11 @@ public class TeamStatus {
     }
 
     @DynamoDBAttribute
-    public Map<String, String> getQuestions() {
+    public Map<String, Map<String,String>> getQuestions() {
         return questions;
     }
 
-    public void setQuestions(Map<String, String> questions) {
+    public void setQuestions(Map<String, Map<String,String>> questions) {
         this.questions = questions;
     }
 

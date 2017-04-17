@@ -75,22 +75,9 @@ public class Database {
         return resources;
     }
 
-    public net.strocamp.bergjes.domain.question.Question getQuestionbyKey(String questionKey) {
+    public Question getQuestionbyKey(String questionKey) {
 
-        Question question = mapper.load(Question.class, questionKey);
-
-        net.strocamp.bergjes.domain.question.Question questionModel =
-                new net.strocamp.bergjes.domain.question.Question();
-        questionModel.setQuestionKey(question.getQuestionKey());
-        questionModel.setQuestion(question.getQuestion());
-        HashMap<AnswerType, String> answers = new HashMap<>();
-        answers.put(AnswerType.A, question.getAnswerA());
-        answers.put(AnswerType.B, question.getAnswerB());
-        answers.put(AnswerType.C, question.getAnswerC());
-        answers.put(AnswerType.D, question.getAnswerD());
-        questionModel.setAnswers(answers);
-
-        return questionModel;
+        return mapper.load(Question.class, questionKey);
     }
 
     public Location getLocationByKey(String locationKey) {

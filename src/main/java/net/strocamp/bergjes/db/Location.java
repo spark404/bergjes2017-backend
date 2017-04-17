@@ -4,15 +4,41 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
+import java.util.Map;
+
 /**
  * Created by hugo on 15/04/2017.
  */
 @DynamoDBTable(tableName = "locations")
 public class Location {
     private String locationCode;
-    private String roundOneQuestion;
-    private String roundTwoQuestion;
-    private String roundThreeQuestion;
+    private Map<String, Map<String,String>> roundData;
+
+    /* {
+          "locationCode": "BELC04",
+          "roundData": {
+            "round1": {
+              "questionKey": "Q001",
+              "resourceMax": "2",
+              "resourceMin": "1",
+              "resourceType": "EGG"
+            },
+            "round2": {
+              "questionKey": "Q001",
+              "resourceMax": "2",
+              "resourceMin": "1",
+              "resourceType": "EGG"
+            },
+            "round3": {
+              "questionKey": "Q001",
+              "resourceMax": "2",
+              "resourceMin": "1",
+              "resourceType": "EGG"
+            }
+          }
+        }
+    */
+
 
     @DynamoDBHashKey
     public String getLocationCode() {
@@ -24,29 +50,12 @@ public class Location {
     }
 
     @DynamoDBAttribute
-    public String getRoundOneQuestion() {
-        return roundOneQuestion;
+
+    public Map<String, Map<String, String>> getRoundData() {
+        return roundData;
     }
 
-    public void setRoundOneQuestion(String roundOneQuestion) {
-        this.roundOneQuestion = roundOneQuestion;
-    }
-
-    @DynamoDBAttribute
-    public String getRoundTwoQuestion() {
-        return roundTwoQuestion;
-    }
-
-    public void setRoundTwoQuestion(String roundTwoQuestion) {
-        this.roundTwoQuestion = roundTwoQuestion;
-    }
-
-    @DynamoDBAttribute
-    public String getRoundThreeQuestion() {
-        return roundThreeQuestion;
-    }
-
-    public void setRoundThreeQuestion(String roundThreeQuestion) {
-        this.roundThreeQuestion = roundThreeQuestion;
+    public void setRoundData(Map<String, Map<String, String>> roundData) {
+        this.roundData = roundData;
     }
 }

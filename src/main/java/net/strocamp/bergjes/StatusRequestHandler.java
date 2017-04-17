@@ -7,6 +7,7 @@ import net.strocamp.bergjes.db.Database;
 import net.strocamp.bergjes.db.TeamStatus;
 import net.strocamp.bergjes.domain.DeviceInfo;
 import net.strocamp.bergjes.domain.Status;
+import net.strocamp.bergjes.domain.answer.AnswerStatus;
 import net.strocamp.bergjes.domain.internal.DeviceDetails;
 import net.strocamp.bergjes.domain.question.Question;
 import net.strocamp.bergjes.domain.resource.Resource;
@@ -45,9 +46,11 @@ public class StatusRequestHandler extends AbstractRequestHandler implements Requ
 
         ArrayList<Question> activeQuestions = new ArrayList<>();
         teamStatus.getQuestions()
-                    .forEach((question, answerStatus) -> {
-                        logger.log(String.format("Adding question %s for team %s", question, teamStatus.getTeamId()));
-                        activeQuestions.add(database.getQuestionbyKey(question));
+                    .forEach((questionKey, questionStatus) -> {
+                        logger.log(String.format("Adding question %s for team %s", questionKey, teamStatus.getTeamId()));
+                        Question question = Question.fromDbQuestion(database.getQuestionbyKey(questionKey));
+                        question.setAnswerStatus(AnswerStatus.valueOf(questionStatus.get("status")));
+                        activeQuestions.add(question);
                     });
         status.setActiveQuestions(activeQuestions);
 

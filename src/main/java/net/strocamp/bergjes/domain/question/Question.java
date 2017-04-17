@@ -1,7 +1,9 @@
 package net.strocamp.bergjes.domain.question;
 
+import net.strocamp.bergjes.domain.answer.AnswerStatus;
 import net.strocamp.bergjes.domain.answer.AnswerType;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -11,6 +13,7 @@ public class Question {
     private String questionKey;
     private String question;
     private Map<AnswerType, String> answers;
+    private AnswerStatus answerStatus;
 
     public String getQuestionKey() {
         return questionKey;
@@ -34,5 +37,28 @@ public class Question {
 
     public void setAnswers(Map<AnswerType, String> answers) {
         this.answers = answers;
+    }
+
+    public AnswerStatus getAnswerStatus() {
+        return answerStatus;
+    }
+
+    public void setAnswerStatus(AnswerStatus answerStatus) {
+        this.answerStatus = answerStatus;
+    }
+
+    public static Question fromDbQuestion(net.strocamp.bergjes.db.Question question) {
+            Question questionModel = new Question();
+            questionModel.setQuestionKey(question.getQuestionKey());
+            questionModel.setQuestion(question.getQuestion());
+            HashMap<AnswerType, String> answers = new HashMap<>();
+            answers.put(AnswerType.A, question.getAnswerA());
+            answers.put(AnswerType.B, question.getAnswerB());
+            answers.put(AnswerType.C, question.getAnswerC());
+            answers.put(AnswerType.D, question.getAnswerD());
+            questionModel.setAnswers(answers);
+            questionModel.setAnswerStatus(AnswerStatus.OPEN);
+
+            return questionModel;
     }
 }
