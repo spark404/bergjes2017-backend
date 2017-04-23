@@ -9,6 +9,7 @@ import net.strocamp.bergjes.domain.answer.AnswerStatus;
 import net.strocamp.bergjes.domain.answer.AnswerType;
 import net.strocamp.bergjes.exceptions.QuestionAlreadyAnsweredException;
 import net.strocamp.bergjes.exceptions.QuestionNotUnlockedException;
+import org.apache.log4j.Logger;
 
 import java.util.Map;
 
@@ -16,9 +17,12 @@ import java.util.Map;
  * Created by hugo on 11/04/2017.
  */
 public class ScannedAnswerRequestHandler extends AbstractRequestHandler implements RequestHandler<Answer, AnswerResponse> {
+    private final static Logger LOG = Logger.getLogger(ScannedAnswerRequestHandler.class);
 
     public AnswerResponse handleRequest(Answer answer, Context context) {
         init(context);
+
+        LOG.debug(String.format("[%s] Entering %s", teamStatus.getTeamName(), this.getClass().getSimpleName()));
 
         AnswerResponse answerResponse = new AnswerResponse();
 

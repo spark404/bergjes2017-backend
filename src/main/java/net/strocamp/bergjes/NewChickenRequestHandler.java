@@ -5,6 +5,7 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import net.strocamp.bergjes.domain.chicken.NewChickenRequest;
 import net.strocamp.bergjes.domain.chicken.NewChickenResponse;
 import net.strocamp.bergjes.domain.resource.ResourceType;
+import org.apache.log4j.Logger;
 
 import java.util.Map;
 
@@ -12,9 +13,13 @@ import java.util.Map;
  * Created by hugo on 23/04/2017.
  */
 public class NewChickenRequestHandler extends AbstractRequestHandler implements RequestHandler<NewChickenRequest, NewChickenResponse> {
+    private final static Logger LOG = Logger.getLogger(NewChickenRequestHandler.class);
+
     @Override
     public NewChickenResponse handleRequest(NewChickenRequest newChickenRequest, Context context) {
         init(context);
+
+        LOG.debug(String.format("[%s] Entering %s", teamStatus.getTeamName(), this.getClass().getSimpleName()));
 
         NewChickenResponse response = new NewChickenResponse();
         response.setSuccess(false);

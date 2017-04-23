@@ -1,16 +1,14 @@
 package net.strocamp.bergjes;
 
 import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import net.strocamp.bergjes.db.TeamStatus;
-import net.strocamp.bergjes.domain.answer.AnswerType;
 import net.strocamp.bergjes.domain.location.Location;
 import net.strocamp.bergjes.domain.location.LocationResponse;
 import net.strocamp.bergjes.domain.question.Question;
 import net.strocamp.bergjes.domain.resource.Resource;
 import net.strocamp.bergjes.domain.resource.ResourceType;
 import net.strocamp.bergjes.exceptions.NoSuchLocationException;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,11 +19,13 @@ import java.util.Random;
  * Created by hugo on 10/04/2017.
  */
 public class ScannedLocationRequestHandler extends AbstractRequestHandler implements RequestHandler<Location, LocationResponse> {
+    private final static Logger LOG = Logger.getLogger(ScannedLocationRequestHandler.class);
 
     public LocationResponse handleRequest(Location scanData, Context context) {
         init(context);
 
-        LambdaLogger logger = context.getLogger();
+        LOG.debug(String.format("[%s] Entering %s", teamStatus.getTeamName(), this.getClass().getSimpleName()));
+
         String roundCode = settings.get("currentRound");
 
         LocationResponse locationResponse = new LocationResponse();
@@ -34,14 +34,16 @@ public class ScannedLocationRequestHandler extends AbstractRequestHandler implem
             // Been here before
 
             locationResponse.setLocationAvailable(false);
+            LOG.debug(String.format("[%s] Already visited location %s during round %s",
+                    teamStatus.getTeamName(), scanData.getLocationCode(), roundCode));
         } else {
             locationResponse.setLocationAvailable(true);
 
             net.strocamp.bergjes.db.Location dbLocation = database.getLocationByKey(scanData.getLocationCode());
             if (dbLocation == null) {
                 String message = String.format("[%s] No location %s in database",
-                        context.getClientContext().getClient().getInstallationId(), scanData.getLocationCode());
-                logger.log(message);
+                        teamStatus.getTeamName(), scanData.getLocationCode());
+                LOG.error(message);
                 throw new NoSuchLocationException(message);
             }
             Map<String, String> currentRoundData = dbLocation.getRoundData().get(roundCode);
@@ -68,6 +70,11 @@ public class ScannedLocationRequestHandler extends AbstractRequestHandler implem
 
             teamStatus.getQuestions().put(questionCode, questionStatus);
             database.updateTeamStatus(teamStatus);
+
+            LOG.debug(String.format("[%s] Unlocked question %s at location %s during round %s for %d of type %s",
+                    teamStatus.getTeamName(), questionCode, scanData.getLocationCode(), roundCode,
+                    locationResponse.getResource().getAmount(),
+                    locationResponse.getResource().getResourceType().name()));
         }
 
         return locationResponse;

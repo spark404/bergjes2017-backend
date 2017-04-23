@@ -5,11 +5,8 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
-import com.amazonaws.services.lambda.runtime.LambdaLogger;
-import net.strocamp.bergjes.domain.answer.AnswerType;
 import net.strocamp.bergjes.domain.internal.DeviceDetails;
 import net.strocamp.bergjes.domain.resource.ResourceType;
-
 
 import java.util.Collections;
 import java.util.HashMap;
