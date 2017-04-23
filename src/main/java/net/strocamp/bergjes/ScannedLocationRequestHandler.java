@@ -48,7 +48,11 @@ public class ScannedLocationRequestHandler extends AbstractRequestHandler implem
             String questionCode = currentRoundData.get("questionKey");
 
             locationResponse.setQuestion(Question.fromDbQuestion(database.getQuestionbyKey(questionCode)));
-            locationResponse.setResource(new Resource(ResourceType.valueOf(currentRoundData.get("resourceType")), 0));
+            ResourceType resourceType = ResourceType.valueOf(currentRoundData.get("resourceType"));
+            if (ResourceType.RANDOM.equals(resourceType)) {
+                resourceType = ResourceType.randomResource();
+            }
+            locationResponse.setResource(new Resource(resourceType, 0));
 
             if (!teamStatus.getVisitedLocationsPerRound().containsKey(roundCode)) {
                 teamStatus.getVisitedLocationsPerRound().put(roundCode, new ArrayList<>());
@@ -57,7 +61,7 @@ public class ScannedLocationRequestHandler extends AbstractRequestHandler implem
             teamStatus.getVisitedLocationsPerRound().get(roundCode).add(scanData.getLocationCode());
             HashMap<String, String> questionStatus = new HashMap<String, String>();
             questionStatus.put("status", "OPEN");
-            questionStatus.put("resource", currentRoundData.get("resourceType"));
+            questionStatus.put("resource", resourceType.name());
             int resourceMin = Integer.parseInt(currentRoundData.get("resourceMin"));
             int resourceMax = Integer.parseInt(currentRoundData.get("resourceMax"));
             questionStatus.put("amount", Integer.toString(getRandomAmount(resourceMin, resourceMax)));

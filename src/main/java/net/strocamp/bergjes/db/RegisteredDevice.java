@@ -39,4 +39,6 @@ public class RegisteredDevice {
     public void setTeamIdentifier(String teamIdentifier) {
         this.teamIdentifier = teamIdentifier;
     }
+
+
 }

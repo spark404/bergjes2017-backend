@@ -15,6 +15,9 @@ public class TeamStatus {
     // UUID from devices
     private String teamId;
 
+    // Customizable name
+    private String teamName;
+
     // round - > [locations]
     private Map<String, List<String>> visitedLocationsPerRound;
 
@@ -31,6 +34,15 @@ public class TeamStatus {
 
     public void setTeamId(String teamId) {
         this.teamId = teamId;
+    }
+
+    @DynamoDBAttribute
+    public String getTeamName() {
+        return teamName;
+    }
+
+    public void setTeamName(String teamName) {
+        this.teamName = teamName;
     }
 
     @DynamoDBAttribute

@@ -14,7 +14,12 @@ import net.strocamp.bergjes.domain.resource.Resource;
 import net.strocamp.bergjes.domain.resource.ResourceType;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalField;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -42,7 +47,16 @@ public class StatusRequestHandler extends AbstractRequestHandler implements Requ
 
         status.setActiveRound(roundCode);
 
-        status.setRoundExpiry(LocalDateTime.now().plus(60, ChronoUnit.MINUTES));
+        LocalDateTime roundEnd = LocalDateTime.parse(settings.get("currentEndTime"));
+        status.setRoundExpiry(roundEnd
+                .toInstant(ZoneOffset.UTC)
+                .getEpochSecond());
+
+        String teamName = teamStatus.getTeamName();
+
+        status.setTeamActive(teamName != null && !teamName.isEmpty() && !teamName.startsWith("xx"));
+        status.setTeamName(teamName);
+        status.setTeamId(teamStatus.getTeamId());
 
         ArrayList<Question> activeQuestions = new ArrayList<>();
         teamStatus.getQuestions()

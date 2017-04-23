@@ -11,9 +11,12 @@ import java.util.List;
  */
 public class Status {
     private String activeRound;
-    private LocalDateTime roundExpiry;
+    private Long roundExpiry;
     private List<Resource> resourceList;
     private List<Question> activeQuestions;
+    private Boolean teamActive;
+    private String teamName;
+    private String teamId;
 
     public String getActiveRound() {
         return activeRound;
@@ -23,11 +26,11 @@ public class Status {
         this.activeRound = activeRound;
     }
 
-    public LocalDateTime getRoundExpiry() {
+    public Long getRoundExpiry() {
         return roundExpiry;
     }
 
-    public void setRoundExpiry(LocalDateTime roundExpiry) {
+    public void setRoundExpiry(Long roundExpiry) {
         this.roundExpiry = roundExpiry;
     }
 
@@ -45,5 +48,29 @@ public class Status {
 
     public void setActiveQuestions(List<Question> activeQuestions) {
         this.activeQuestions = activeQuestions;
+    }
+
+    public Boolean getTeamActive() {
+        return teamActive;
+    }
+
+    public void setTeamActive(Boolean teamActive) {
+        this.teamActive = teamActive;
+    }
+
+    public String getTeamName() {
+        return teamName;
+    }
+
+    public void setTeamName(String teamName) {
+        this.teamName = teamName;
+    }
+
+    public String getTeamId() {
+        return teamId;
+    }
+
+    public void setTeamId(String teamId) {
+        this.teamId = teamId;
     }
 }
