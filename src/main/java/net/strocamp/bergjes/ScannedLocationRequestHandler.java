@@ -20,6 +20,7 @@ import java.util.Random;
  */
 public class ScannedLocationRequestHandler extends AbstractRequestHandler implements RequestHandler<Location, LocationResponse> {
     private final static Logger LOG = Logger.getLogger(ScannedLocationRequestHandler.class);
+    private final static Random RANDOM = new Random();
 
     public LocationResponse handleRequest(Location scanData, Context context) {
         init(context);
@@ -80,17 +81,7 @@ public class ScannedLocationRequestHandler extends AbstractRequestHandler implem
         return locationResponse;
     }
 
-    private Resource getResource() {
-        Resource resource = new Resource();
-        resource.setResourceType(ResourceType.EGG);
-        resource.setAmount(1);
-        return resource;
-    }
-
     private int getRandomAmount(int lower, int upper) {
-        Random r = new Random();
-        int Low = lower;
-        int High = upper + 1;
-        return r.nextInt(High-Low) + Low;
+        return RANDOM.nextInt((upper + 1) - lower) + lower;
     }
 }
