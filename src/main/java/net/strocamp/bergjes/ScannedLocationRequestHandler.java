@@ -2,12 +2,15 @@ package net.strocamp.bergjes;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import net.strocamp.bergjes.db.GeoLocation;
 import net.strocamp.bergjes.domain.location.Location;
 import net.strocamp.bergjes.domain.location.LocationResponse;
 import net.strocamp.bergjes.domain.question.Question;
 import net.strocamp.bergjes.domain.resource.Resource;
 import net.strocamp.bergjes.domain.resource.ResourceType;
+import net.strocamp.bergjes.exceptions.LocationMismatchException;
 import net.strocamp.bergjes.exceptions.NoSuchLocationException;
+import net.strocamp.bergjes.geolocate.DistanceCalculator;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -47,6 +50,9 @@ public class ScannedLocationRequestHandler extends AbstractRequestHandler implem
                 LOG.error(message);
                 throw new NoSuchLocationException(message);
             }
+
+            verifyGeoLocation(dbLocation, scanData, teamStatus.getTeamName());
+
             Map<String, String> currentRoundData = dbLocation.getRoundData().get(roundCode);
             String questionCode = currentRoundData.get("questionKey");
 
@@ -79,6 +85,36 @@ public class ScannedLocationRequestHandler extends AbstractRequestHandler implem
         }
 
         return locationResponse;
+    }
+
+    private void verifyGeoLocation(net.strocamp.bergjes.db.Location dbLocation, Location scanData, String teamName) {
+        if (dbLocation.getGeoLocation() == null
+                || dbLocation.getGeoLocation().getLatitude() == null
+                || dbLocation.getGeoLocation().getLongitude() == null) {
+            // No location data, update the location
+            LOG.info(String.format("[%s] Location %s has no geolocation data", teamName, scanData.getLocationCode()));
+
+            if (scanData.getLatitude() != null && scanData.getLongitude() != null) {
+                GeoLocation geoLocation = new GeoLocation(scanData.getLatitude(), scanData.getLongitude());
+                dbLocation.setGeoLocation(geoLocation);
+                database.updateLocation(dbLocation);
+                LOG.info(String.format("[%s] Set geolocation for location %s to <%f,%f>", teamName,
+                        scanData.getLocationCode(), scanData.getLatitude(), scanData.getLongitude()));
+            }
+
+            return;
+        }
+
+        GeoLocation geoLocation = dbLocation.getGeoLocation();
+        double distance = DistanceCalculator.distance(geoLocation.getLatitude(), geoLocation.getLongitude(),
+                scanData.getLatitude(), scanData.getLongitude());
+
+        Boolean enforceDistance = Boolean.parseBoolean(settings.get("breakOnDistance"));
+
+        LOG.info(String.format("[%s] Scanned location is %f meters away from stored location", teamName, distance));
+        if (distance > (100 + 2 * scanData.getAccuracy()) && enforceDistance) {
+            throw new LocationMismatchException(String.format("Jullie zijn %.1f meter verwijderd van deze locatie?!?", distance));
+        }
     }
 
     private int getRandomAmount(int lower, int upper) {

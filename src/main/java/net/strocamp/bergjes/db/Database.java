@@ -89,6 +89,10 @@ public class Database {
         mapper.save(status);
     }
 
+    public void updateLocation(Location location) {
+        mapper.save(location);
+    }
+
     public void loadSettings(Map<String, String> settings) {
         mapper.scan(Setting.class, new DynamoDBScanExpression())
                 .stream().forEach(setting -> settings.put(setting.getSettingKey(), setting.getSettingValue()));

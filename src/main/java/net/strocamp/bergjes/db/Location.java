@@ -1,6 +1,7 @@
 package net.strocamp.bergjes.db;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBFlattened;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
@@ -13,6 +14,7 @@ import java.util.Map;
 public class Location {
     private String locationCode;
     private Map<String, Map<String,String>> roundData;
+    private GeoLocation geoLocation;
 
     /* {
           "locationCode": "BELC04",
@@ -50,12 +52,22 @@ public class Location {
     }
 
     @DynamoDBAttribute
-
     public Map<String, Map<String, String>> getRoundData() {
         return roundData;
     }
 
     public void setRoundData(Map<String, Map<String, String>> roundData) {
         this.roundData = roundData;
+    }
+
+    @DynamoDBFlattened(attributes = {
+            @DynamoDBAttribute(mappedBy = "latitude", attributeName = "latitude"),
+            @DynamoDBAttribute(mappedBy = "longitude", attributeName = "longitude")})
+    public GeoLocation getGeoLocation() {
+        return geoLocation;
+    }
+
+    public void setGeoLocation(GeoLocation geoLocation) {
+        this.geoLocation = geoLocation;
     }
 }
