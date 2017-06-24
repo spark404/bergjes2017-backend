@@ -105,8 +105,8 @@ public class ScannedLocationRequestHandler extends AbstractRequestHandler implem
             return;
         }
 
-        if (scanData == null) {
-            LOG.warn("Device did not supply any location data, can't do location check");
+        if (scanData == null || scanData.getLatitude() == null || scanData.getLongitude() == null) {
+            LOG.warn(String.format("[%s] Device did not supply any location data, can't do location check", teamName));
             return;
         }
 
@@ -115,6 +115,9 @@ public class ScannedLocationRequestHandler extends AbstractRequestHandler implem
                 scanData.getLatitude(), scanData.getLongitude());
 
         Boolean enforceDistance = Boolean.parseBoolean(settings.get("breakOnDistance"));
+
+        LOG.info(String.format("[%s] Device at location %s reports %f,%f with accuracy %f", teamName,
+                scanData.getLocationCode(), scanData.getLongitude(), scanData.getLatitude(), scanData.getAccuracy()));
 
         LOG.info(String.format("[%s] Scanned location is %f meters away from stored location", teamName, distance));
         if (distance > (100 + 2 * scanData.getAccuracy()) && enforceDistance) {
