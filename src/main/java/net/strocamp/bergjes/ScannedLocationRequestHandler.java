@@ -105,6 +105,11 @@ public class ScannedLocationRequestHandler extends AbstractRequestHandler implem
             return;
         }
 
+        if (scanData == null) {
+            LOG.warn("Device did not supply any location data, can't do location check");
+            return;
+        }
+
         GeoLocation geoLocation = dbLocation.getGeoLocation();
         double distance = DistanceCalculator.distance(geoLocation.getLatitude(), geoLocation.getLongitude(),
                 scanData.getLatitude(), scanData.getLongitude());
